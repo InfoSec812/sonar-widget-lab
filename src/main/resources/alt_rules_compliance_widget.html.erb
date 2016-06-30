@@ -20,9 +20,6 @@
   info_violations = @snapshot.measure('info_violations')
   new_info_violations = @snapshot.measure('new_info_violations')
 
-  technical_debt = @snapshot.measure('sqale_index')
-  new_technical_debt = @snapshot.measure('new_technical_debt')
-
   measures=[blocker_violations,critical_violations,major_violations,minor_violations,info_violations,violations]
   values=measures.map{|m| m ? (m.value||0) : 0}
   new_values=[new_blocker_violations,new_critical_violations,new_major_violations,new_minor_violations,new_info_violations,new_violations]
@@ -48,48 +45,6 @@
       </span>
       <%= dashboard_configuration.selected_period? ? format_variation(weighted_violations) : trend_icon(weighted_violations) -%>
     </div>
-
-    <% if technical_debt && widget_properties['showTechDebt']%>
-      <h3><%= message('widget.rules.technical_debt') -%></h3>
-      <div class="marginbottom10">
-        <span class="big">
-          <a href="<%= url_for_drilldown('sqale_index') -%>"><%= format_measure(technical_debt) -%></a>
-        </span>
-        <span><%= dashboard_configuration.selected_period? ? format_variation(technical_debt) : trend_icon(technical_debt) -%></span>
-        <%
-           if @dashboard_configuration.selected_period?
-             technical_debt_variation = variation_value(technical_debt)
-             new_technical_debt_variation = variation_value(new_technical_debt)
-             estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_f if technical_debt_variation && new_technical_debt_variation
-        %>
-          <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
-            <br/>
-            <span style="font-weight: bold">
-              <%= message('widget.rules.added') -%>&nbsp;
-              <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>" class="varw">
-                <%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
-            </span>
-          <% end %>
-          <% if estimated_cleared_technical_debt && estimated_cleared_technical_debt > 0 %>
-            <br/>
-            <span style="font-weight: bold">
-              <%= message('widget.rules.removed') -%>&nbsp;
-               <span class="varb"><%= Internal.i18n.formatLongDuration(estimated_cleared_technical_debt.to_i, 'SHORT') -%></span>
-            </span>
-          <% end %>
-        <% end %>
-      </div>
-    <% end %>
-
-    <% if technical_debt && widget_properties['showCompliance']%>
-      <h3><%= message('widget.rules.rules_compliance') -%></h3>
-      <div>
-        <span class="big">
-        <%= format_measure(density, :url => url_for_drilldown('weighted_violations', {:highlight => 'weighted_violations'})) -%>
-        </span>
-        <%= dashboard_configuration.selected_period? ? format_variation(density) : trend_icon(density) -%>
-      </div>
-    <% end %>
 
    </div>
   </td>
